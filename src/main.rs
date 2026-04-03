@@ -1,6 +1,36 @@
 mod mymath;
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
-fn main() {
+#[actix_web::main]
+async fn main() -> std::io::Result<()>{
+    HttpServer::new(|| {
+        App::new()
+            // Маршруты с макросами
+            .service(hello)
+            // Ручной маршрут
+            .route("/health", web::get().to(health))
+            // Простой маршрут с замыканием
+            .route("/ping", web::get().to(|| async { "pong" }))
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
+}
+
+async fn health() -> impl Responder {
+    HttpResponse::Ok().body("OK")
+}
+
+#[get("/")]
+async fn hello() -> impl Responder {
+    HttpResponse::Ok().body("Hello, Actix!")
+}
+
+fn greet_user(name: &mut String){
+    *name = String::from("Fred");
+}
+
+fn test(){
     println!("Hello, world!");
     let mut num: u32 = 50;
     num = num + 100;
@@ -36,8 +66,4 @@ fn main() {
 
     println!("MyMath {}", mymath::add(1, 4));
     println!("MyMath {}", mymath::minus(1, 4));
-}
-
-fn greet_user(name: &mut String){
-    *name = String::from("Fred");
 }
